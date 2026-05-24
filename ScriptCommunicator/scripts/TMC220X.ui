@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Dialog</class>
  <widget class="QDialog" name="Dialog">
@@ -275,6 +275,332 @@
         </property>
        </widget>
       </widget>
+	   
+	   
+	   
+	   
+	   // move velo
+	  <widget class="QGroupBox" name="groupBox">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>580</y>
+         <width>400</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Motor running</string>
+       </property>
+
+
+       <widget class="QLabel" name="label_VACTUAL">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>VACTUAL</string>
+        </property>
+       </widget>
+
+       <widget class="QSpinBox" name="VACTUAL_spinBox">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>20</y>
+          <width>111</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>-5000</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="singleStep">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+
+       <widget class="QLabel" name="label_VACTUAL_info">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>20</y>
+          <width>160</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>off</string>
+        </property>
+       </widget>	 
+	
+       <widget class="QPushButton" name="MoveStop_pushButton">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>40</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+	   
+	   <widget class="QPushButton" name="MoveStart_pushButton">
+        <property name="geometry">
+         <rect>
+          <x>90</x>
+          <y>40</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+
+     </widget>
+	   
+	   
+	   // positioning
+	   	  <widget class="QGroupBox" name="groupBox">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>680</y>
+         <width>400</width>
+         <height>111</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Positioning</string>
+       </property>
+
+       <widget class="QLabel" name="label_setPosition">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>set Position</string>
+        </property>
+       </widget>
+
+       <widget class="QSpinBox" name="setPosition_spinBox">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>20</y>
+          <width>111</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>-50000</number>
+        </property>
+        <property name="maximum">
+         <number>50000</number>
+        </property>
+        <property name="singleStep">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+	   
+	   <widget class="QLabel" name="label_setPosition_info">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>20</y>
+          <width>160</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>act Pos</string>
+        </property>
+       </widget>	 
+
+       <widget class="QLabel" name="label_setVelocity">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>40</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>set Velocity</string>
+        </property>
+       </widget>
+
+       <widget class="QSpinBox" name="setVelocity_spinBox">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>40</y>
+          <width>111</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>-5000</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="singleStep">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+	   
+	   <widget class="QLabel" name="label_setVelocity_info">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>40</y>
+          <width>160</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>act Velo</string>
+        </property>
+       </widget>	
+
+       <widget class="QCheckBox" name="checkBox_moveCyclic">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>60</y>
+          <width>200</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Move cyclic</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+
+       <widget class="QPushButton" name="MoveAbort_pushButton">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>80</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Abort</string>
+        </property>
+       </widget>
+	   
+	   <widget class="QPushButton" name="MovePos_pushButton">
+        <property name="geometry">
+         <rect>
+          <x>90</x>
+          <y>80</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Move Pos</string>
+        </property>
+       </widget>
+	   
+	   <widget class="QPushButton" name="SetZero_pushButton">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>80</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Set Zero</string>
+        </property>
+       </widget>
+	   
+	  <widget class="QPushButton" name="MoveZero_pushButton">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>80</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Move Zero</string>
+        </property>
+       </widget>
+	  
+
+
+     </widget>
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
       <widget class="QGroupBox" name="groupBox_2">
        <property name="geometry">
         <rect>
@@ -285,7 +611,7 @@
         </rect>
        </property>
        <property name="title">
-        <string>StealthChop / SpreadCycle Configuration</string>
+        <string>StealthChop / SpreadCycle Configuration jmo</string>
        </property>
        <widget class="QCheckBox" name="EN_SPREADCYCLE_checkBox">
         <property name="geometry">

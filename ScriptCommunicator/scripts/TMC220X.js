@@ -1,4 +1,4 @@
-/* jshint undef: false, unused: true */
+﻿/* jshint undef: false, unused: true */
 
 // ****************** Start COM-Port ********************************
 
@@ -800,7 +800,9 @@ var AllRegisters = [
             {
                 name: "VACTUAL",
                 bit: 0,
-                len: 24
+                len: 24,
+				spinbox: UI_VACTUAL_spinBox,
+				callback: UI_VACTUAL_callback
             },
 		],
         rw_info: "Write only",
@@ -1458,6 +1460,326 @@ function initAfterConnection() {
 }
 
 
+
+
+
+var currentVactual = 0;
+
+function UI_VACTUAL_spinBoxValueChanged(value) {
+    currentVactual = value;
+	
+	// VACTUAL ist signed 24-bit
+    if (value < 0) {
+        value = (1 << 24) + value;
+    }
+
+    setRegisterByName("VACTUAL", value);
+    UI_VACTUAL_callback(value);
+}
+
+function UI_VACTUAL_callback(value) {
+
+    var signedValue = value;
+    
+    // unsigned -> signed zurück
+    if (signedValue & 0x800000) {
+        signedValue = signedValue - 0x1000000;
+    }
+
+    UI_label_VACTUAL_info.setText(
+        "Velocity = " + signedValue + " (µsteps/t)"
+    );
+}
+
+function UI_VACTUAL_start() {
+	
+	 value = currentVactual;
+	
+	// VACTUAL ist signed 24-bit
+    if (value < 0) {
+        value = (1 << 24) + value;
+    }
+	
+    setRegisterByName("VACTUAL", value);
+    UI_VACTUAL_callback(value);
+}
+
+function UI_VACTUAL_stop() {
+    setRegisterByName("VACTUAL", 0);
+    UI_VACTUAL_callback(0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =====================================================
+// Simple Positioning for TMC2209 using VACTUAL
+// Time based movement estimation
+// =====================================================
+
+
+// -----------------------------------------------------
+// Global Variables
+// -----------------------------------------------------
+
+var actualPosition = 0;
+var currentVelocity = 0;
+var moveStartPosition = 0;
+
+var targetPosition = 0;
+
+var moveTimer = scriptThread.createTimer();
+var uiTimer = scriptThread.createTimer();
+
+var moveStartTime = 0;
+var moveDuration = 0;
+
+positioning_init();
+
+// -----------------------------------------------------
+// Write VACTUAL
+// -----------------------------------------------------
+
+function setVactual(value)
+{
+    currentVelocity = value;
+
+    var regValue = value;
+
+    // signed 24-bit
+    if(regValue < 0)
+    {
+        regValue = (1 << 24) + regValue;
+    }
+
+    setRegisterByName("VACTUAL", regValue);
+
+    UI_label_setVelocity_info.setText(
+        "act Velo: " + value
+    );
+}
+
+
+// -----------------------------------------------------
+// Update Position Label (UI Timer)
+// -----------------------------------------------------
+
+function updateUI()
+{
+
+	var elapsed = (Date.now() - moveStartTime) / 1000.0;
+
+    if(isFinite(elapsed) && isFinite(currentVelocity) && moveTimer.isActive())
+    {
+        actualPosition = moveStartPosition + (currentVelocity * elapsed);
+    }
+	
+	
+    UI_label_setPosition_info.setText(
+        "act Pos: " + (isFinite(actualPosition) ? Math.round(actualPosition) : 0)
+    );
+
+    UI_label_setVelocity_info.setText(
+        "act Velo: " + (isFinite(currentVelocity) ? currentVelocity : 0)
+    );
+
+	if(!moveTimer.isActive()) {
+		uiTimer.stop();
+	}
+}
+
+
+// -----------------------------------------------------
+// Calculate move time
+// t = s / v
+// -----------------------------------------------------
+
+function calculateMoveTime(distance, velocity)
+{
+    return Math.abs(distance / velocity);
+}
+
+
+// -----------------------------------------------------
+// Move finished (Timer callback)
+// -----------------------------------------------------
+
+function onMoveFinished()
+{
+	actualPosition = targetPosition;
+	updateUI();
+    setVactual(0);
+
+	if(UI_checkBox_moveCyclic.isChecked()){
+		if(targetPosition!=0){
+			MoveZero_pushButton_clicked();
+		}
+		else
+		{
+			MovePos_pushButton_clicked();
+		}
+	}
+}
+
+function MovePos()
+{
+	scriptThread.addMessageToLogAndConsoles("Start");
+    var velocity = Number(UI_setVelocity_spinBox.value() );
+    scriptThread.addMessageToLogAndConsoles("Started with Pos: " + targetPosition + "Velo: " + velocity + "\r\n");
+	
+    if(!isFinite(velocity) || velocity === 0)
+        return;
+
+    if(!isFinite(targetPosition))
+        return;
+
+    var distance = targetPosition - actualPosition;
+    scriptThread.addMessageToLogAndConsoles("Distance: " + distance + "\r\n");
+    if(distance < 0)
+        velocity = -Math.abs(velocity);
+    else
+        velocity = Math.abs(velocity);
+
+    currentVelocity = velocity;
+
+    moveDuration = Math.abs(distance / velocity);
+
+    moveStartTime = Date.now();
+	moveStartPosition = actualPosition;
+
+    setVactual(velocity);
+
+    moveTimer.start(moveDuration * 1000);
+	
+    uiTimer.start();
+}
+
+function MovePos_pushButton_clicked()
+{
+
+    targetPosition = Number(UI_setPosition_spinBox.value() );
+	MovePos();
+}
+
+
+// -----------------------------------------------------
+// Abort movement
+// -----------------------------------------------------
+
+function MoveAbort_pushButton_clicked()
+{
+    moveTimer.stop();
+	updateUI();
+    setVactual(0);
+}
+
+
+// -----------------------------------------------------
+// Set current position to zero
+// -----------------------------------------------------
+
+function SetZero_pushButton_clicked()
+{
+    actualPosition = 0;
+    setVactual(0);
+	updateUI();
+}
+
+
+// -----------------------------------------------------
+// Move to zero position
+// -----------------------------------------------------
+
+function MoveZero_pushButton_clicked()
+{
+	targetPosition = 0;
+    MovePos();
+}
+
+
+// -----------------------------------------------------
+// Initialize UI
+// -----------------------------------------------------
+
+function positioning_init()
+{
+	moveTimer.timeoutSignal.connect(onMoveFinished);
+    moveTimer.setSingleShot(true);
+	
+    uiTimer.timeoutSignal.connect(updateUI);
+    uiTimer.setInterval(200);
+    uiTimer.setSingleShot(false);
+
+    UI_label_setVelocity_info.setText(
+        "act Velo: 0"
+    );
+}
+
+
+// -----------------------------------------------------
+// UI Connections
+// -----------------------------------------------------
+
+UI_MovePos_pushButton.clickedSignal.connect(
+    MovePos_pushButton_clicked
+);
+
+UI_MoveAbort_pushButton.clickedSignal.connect(
+    MoveAbort_pushButton_clicked
+);
+
+UI_SetZero_pushButton.clickedSignal.connect(
+    SetZero_pushButton_clicked
+);
+
+UI_MoveZero_pushButton.clickedSignal.connect(
+    MoveZero_pushButton_clicked
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ********************** Signal connections *****************************
 
 initTreeWidget(AllRegisters, UI_GeneralTreeWidget);
@@ -1467,6 +1789,13 @@ UI_Connect_pushButton.clickedSignal.connect(connectButtonClicked);
 serialPort.readyReadSignal.connect(dataReceivedSlot);
 
 UI_ReadAllButton.clickedSignal.connect(readAllRegisters);
+
+
+
+
+UI_VACTUAL_spinBox.valueChangedSignal.connect(UI_VACTUAL_spinBoxValueChanged);
+UI_MoveStop_pushButton.clickedSignal.connect(UI_VACTUAL_stop);
+UI_MoveStart_pushButton.clickedSignal.connect(UI_VACTUAL_start);
 
 // Init Motor Current
 UI_spinBox_I_RUN.valueChangedSignal.connect(UI_I_RUN_spinBoxValueChanged);
