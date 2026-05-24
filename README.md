@@ -1,3 +1,7 @@
+Fork:
+Added velocity and time measured positioning mode with cyclic execution
+
+
 # SilentStepStick
 The Silent-Step-Stick is a Stepper Motor Driver Board for 2-Phase Motors based on [Trinamic](https://www.trinamic.com) Motor Drivers.
 
